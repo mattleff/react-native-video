@@ -155,12 +155,39 @@ static int const RCTVideoUnset = -1;
   RCTVideoPlayerViewController* viewController = [[RCTVideoPlayerViewController alloc] init];
   viewController.showsPlaybackControls = YES;
   viewController.rctDelegate = self;
+  viewController.delegate = self;
   viewController.preferredOrientation = _fullscreenOrientation;
   
   viewController.view.frame = self.bounds;
   viewController.player = player;
   return viewController;
 }
+
+
+#pragma mark - AVPlayerViewControllerDelegate
+
+- (void)playerViewControllerDidStartPictureInPicture:(AVPlayerViewController *)playerViewController {
+    if (self.onPictureInPictureStatusChanged) {
+      self.onPictureInPictureStatusChanged(@{
+                                             @"isActive": [NSNumber numberWithBool:true]
+                                             });
+    }
+    _pictureInPicture = YES;
+}
+
+- (void)playerViewControllerDidStopPictureInPicture:(AVPlayerViewController *)playerViewController {
+    if (self.onPictureInPictureStatusChanged) {
+      self.onPictureInPictureStatusChanged(@{
+                                             @"isActive": [NSNumber numberWithBool:false]
+                                             });
+    }
+    _pictureInPicture = NO;
+}
+
+-(BOOL)playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart:(AVPlayerViewController *)playerViewController {
+    return NO;
+}
+
 
 /* ---------------------------------------------------------
  **  Get the duration for a AVPlayerItem.
@@ -1517,7 +1544,7 @@ static int const RCTVideoUnset = -1;
     _presentingViewController = nil;
     _playerViewController = nil;
     [self applyModifiers];
-    if(self.onVideoFullscreenPlayerDidDismiss) {
+    if(self.onVideoFullscreenPlayerDidDismiss && !_pictureInPicture) {
       self.onVideoFullscreenPlayerDidDismiss(@{@"target": self.reactTag});
     }
   }
