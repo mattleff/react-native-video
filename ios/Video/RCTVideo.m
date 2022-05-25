@@ -156,6 +156,7 @@ static int const RCTVideoUnset = -1;
   viewController.showsPlaybackControls = YES;
   viewController.rctDelegate = self;
   viewController.preferredOrientation = _fullscreenOrientation;
+  viewController.allowsPictureInPicturePlayback = NO;
   
   viewController.view.frame = self.bounds;
   viewController.player = player;
@@ -1445,7 +1446,7 @@ static int const RCTVideoUnset = -1;
     [self.layer addSublayer:_playerLayer];
     self.layer.needsDisplayOnBoundsChange = YES;
     #if TARGET_OS_IOS
-    [self setupPipController];
+    // [self setupPipController];
     #endif
   }
 }
